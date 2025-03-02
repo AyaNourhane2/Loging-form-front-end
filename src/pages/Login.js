@@ -1,210 +1,191 @@
-import axios from "axios";
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 
-import coverPhoto from "../asset/cover-photo.jpg"; // Importation de l'image
+
+import axios from "axios"; // Import d'axios pour effectuer des requêtes HTTP
+import React, { useState } from "react"; // Import de React et du hook useState
+import { Link, useNavigate } from "react-router-dom"; // Import des composants de routage
+import { toast } from "react-toastify"; // Import de toast pour afficher des notifications
+
+import coverPhoto from "../asset/image-hotel.webp"; // Import de l'image de fond
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState({});
-  const [focusedField, setFocusedField] = useState(null);
-  const navigate = useNavigate();
+  // États pour gérer les champs du formulaire et les erreurs
+  const [email, setEmail] = useState(""); // État pour l'email
+  const [password, setPassword] = useState(""); // État pour le mot de passe
+  const [errors, setErrors] = useState({}); // État pour stocker les erreurs de validation
+  const [focusedField, setFocusedField] = useState(null); // État pour gérer le champ en focus (non utilisé dans ce code)
+  const navigate = useNavigate(); // Hook pour naviguer programmatiquement
 
-  // Validation function for email and password
+  // Fonction pour valider le formulaire
   const validateForm = () => {
-    const errors = {};
+    const errors = {}; // Objet pour stocker les erreurs
     if (!email) {
-      errors.email = "Email is required";
+      errors.email = "Email is required"; // Erreur si l'email est vide
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = "Please enter a valid email address";
+      errors.email = "Please enter a valid email address"; // Erreur si l'email est invalide
     }
     if (!password) {
-      errors.password = "Password is required";
+      errors.password = "Password is required"; // Erreur si le mot de passe est vide
     }
-    return errors;
+    return errors; // Retourne les erreurs
   };
 
-  // Handle form submission
+  // Fonction pour gérer la soumission du formulaire
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Empêche le rechargement de la page
+
+    const validationErrors = validateForm(); // Valide le formulaire
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors); // Affiche les erreurs de validation
+      return;
+    }
 
     try {
+      // Envoie une requête POST pour se connecter
       const response = await axios.post("http://localhost:3000/api/auth/login", {
         email,
         password,
       });
 
       if (response.data.success) {
-        toast.success("Login successful!");
-        const token = response.data.token;
-        sessionStorage.setItem("authToken", token);
-        navigate("/homeScreen");
-        fetchUserDetails();
+        toast.success("Login successful!"); // Affiche un message de succès
+        sessionStorage.setItem("authToken", response.data.token); // Stocke le token dans le sessionStorage
+        navigate("/homeScreen"); // Redirige vers la page d'accueil
       } else {
-        toast.error(response.data.message || "Login failed");
+        toast.error(response.data.message || "Login failed"); // Affiche un message d'erreur
       }
     } catch (error) {
-      console.error("Error during login:", error);
       toast.error(
-        error.response?.data?.message || "Something went wrong. Please try again later."
+        error.response?.data?.message || "Something went wrong. Please try again later." // Affiche un message d'erreur générique
       );
     }
   };
 
-  const fetchUserDetails = async () => {
-    try {
-      const token = sessionStorage.getItem("authToken");
-
-      if (!token) {
-        return;
-      }
-
-      const response = await axios.get("http://localhost:3000/api/auth/get-userDetails", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.data.success) {
-        console.log(response.data.user);
-      } else {
-        console.log(response.data.message || "Failed to fetch user details");
-      }
-    } catch (err) {
-      console.error("Error fetching user details:", err);
-    }
-  };
-
+  // Rendu du composant
   return (
     <div style={styles.pageContainer}>
-      {/* Section image de fond */}
-      <div style={styles.imageContainer}></div>
+      {/* Overlay pour assombrir l'image de fond */}
+      <div style={styles.overlay}>
+        {/* Conteneur du formulaire de connexion */}
+        <div style={styles.loginContainer}>
+          <h2 style={styles.title}>Login</h2> {/* Titre du formulaire */}
+          <form onSubmit={handleSubmit}>
+            {/* Champ pour l'email */}
+            <div className="form-group">
+              <label style={styles.label}>Email</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)} // Met à jour l'état de l'email
+                style={styles.inputField}
+              />
+              {errors.email && <span className="error-message">{errors.email}</span>} {/* Affiche l'erreur de l'email */}
+            </div>
 
-      {/* Section formulaire */}
-      <div style={styles.loginContainer}>
-        <h2 style={styles.title}>Login</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label style={styles.label}>Email</label>
-            <input
-              type="email"
-              name="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={
-                focusedField === "email"
-                  ? { ...styles.inputField, ...styles.inputFieldFocus }
-                  : styles.inputField
-              }
-              onFocus={() => setFocusedField("email")}
-              onBlur={() => setFocusedField(null)}
-            />
-            {errors.email && <span className="error-message">{errors.email}</span>}
-          </div>
-          <div className="form-group">
-            <label style={styles.label}>Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={
-                focusedField === "password"
-                  ? { ...styles.inputField, ...styles.inputFieldFocus }
-                  : styles.inputField
-              }
-              onFocus={() => setFocusedField("password")}
-              onBlur={() => setFocusedField(null)}
-            />
-            {errors.password && <span className="error-message">{errors.password}</span>}
-          </div>
-          <button type="submit" style={styles.submitButton}>
-            Login
-          </button>
-        </form>
+            {/* Champ pour le mot de passe */}
+            <div className="form-group">
+              <label style={styles.label}>Password</label>
+              <input
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)} // Met à jour l'état du mot de passe
+                style={styles.inputField}
+              />
+              {errors.password && <span className="error-message">{errors.password}</span>} {/* Affiche l'erreur du mot de passe */}
+            </div>
 
-        <p style={{ textAlign: "center" }}>
-          Don't have an account?{" "}
-          <Link to="/signUp" className="toggle-link" style={styles.link}>
-            Sign Up
-          </Link>
-        </p>
+            {/* Bouton de soumission */}
+            <button type="submit" style={styles.submitButton}>Login</button>
+          </form>
+
+          {/* Lien vers la page d'inscription */}
+          <p style={{ textAlign: "center" }}>
+            Don't have an account? {" "}
+            <Link to="/signUp" style={styles.link}>Sign Up</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
 };
 
-// Styles pour l'alignement et l'image de fond
+// Styles pour le composant
 const styles = {
   pageContainer: {
     display: "flex",
-    height: "100vh",
-  },
-  imageContainer: {
-    flex: 1,
-    backgroundImage: `url(${coverPhoto})`,
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100vh", // Prend toute la hauteur de la page
+    backgroundImage: `url(${coverPhoto})`, // Image de fond
     backgroundSize: "cover",
     backgroundPosition: "center",
   },
+  overlay: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.6)", // Overlay sombre
+  },
   loginContainer: {
-    width: "350px",
-    background: "#fff",
+    width: "320px",
+    background: "rgba(0, 119, 182, 0.7)", // Fond semi-transparent
     padding: "20px",
-    borderRadius: "8px",
-    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+    borderRadius: "10px",
+    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)", // Ombre
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
+    color: "white",
+    fontStyle: "italic",
+    textDecoration: "underline",
     alignItems: "center",
-    marginRight: "50px",
   },
   title: {
-    color: "green",
+    textAlign: "center",
+    color: "#28a745", // Couleur du titre
+    fontSize: "24px",
+    marginBottom: "15px",
     fontStyle: "italic",
     textDecoration: "underline",
   },
   label: {
+    marginBottom: "5px",
+    display: "block",
     fontStyle: "italic",
     textDecoration: "underline",
-    display: "block",
-    marginBottom: "5px",
   },
   inputField: {
     width: "100%",
     padding: "10px",
-    fontSize: "16px",
-    border: "2px solid #ccc",
+    fontSize: "14px",
+    border: "1px solid #ccc",
     borderRadius: "5px",
-    outline: "none",
-    transition: "all 0.3s ease-in-out",
-  },
-  inputFieldFocus: {
-    border: "2px solid #007BFF",
-    boxShadow: "0px 0px 8px rgba(0, 123, 255, 0.5)",
-    transform: "scale(1.02)",
+    marginBottom: "10px",
+    fontStyle: "italic",
+    textDecoration: "underline",
   },
   submitButton: {
     width: "100%",
     padding: "10px",
     fontSize: "16px",
-    fontWeight: "bold",
-    fontStyle: "italic",
-    backgroundColor: "#28a745",
+    backgroundColor: "#28a745", // Couleur du bouton
     color: "white",
     border: "none",
     borderRadius: "5px",
     cursor: "pointer",
     transition: "all 0.3s ease-in-out",
+    fontStyle: "italic",
+    textDecoration: "underline",
   },
   link: {
-    color: "#007BFF",
+    color: "#28a745", // Couleur du lien
     textDecoration: "underline",
     fontStyle: "italic",
   },
 };
 
-export default Login;
+export default Login; // Export du composant Login

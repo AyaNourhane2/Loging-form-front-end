@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import presentationImage from '../asset/presentation.jpg';
 import menuImage from '../asset/menu.jpg';
 import chefImage from '../asset/chef.jpg';
@@ -8,6 +8,75 @@ import experienceImage from '../asset/experience.jpg';
 import serviceDisponibleImage from '../asset/service-disponible.jpg';
 
 const LearnMore = () => {
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [feedbacks, setFeedbacks] = useState([]); // État pour stocker les commentaires
+  const [message, setMessage] = useState(''); // État pour afficher les messages
+
+  // Commentaire statique
+  const staticFeedback = {
+    id: 0,
+    user_id: 1,
+    comment: "Un service exceptionnel et une cuisine délicieuse. Nous reviendrons certainement !",
+    rating: 5,
+  };
+
+  // Charger les commentaires depuis l'API
+  const fetchFeedbacks = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/feedbacks/get-feedbacks');
+      const data = await response.json();
+      if (data.success) {
+        setFeedbacks(data.feedbacks);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des feedbacks:', error);
+      setMessage('Échec de la récupération des feedbacks');
+    }
+  };
+
+  // Ajouter un commentaire
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!comment || rating < 1 || rating > 5) {
+      setMessage('Veuillez fournir un commentaire et une note valide (1-5).');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:3000/api/feedbacks/add-feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: 1, // Remplacez par l'ID de l'utilisateur connecté
+          comment,
+          rating,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setMessage('Merci pour votre feedback !');
+        setComment('');
+        setRating(0);
+        fetchFeedbacks(); // Recharger les commentaires après l'ajout
+      } else {
+        setMessage('Échec de l\'ajout du feedback.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout du feedback:', error);
+      setMessage('Échec de l\'ajout du feedback.');
+    }
+  };
+
+  // Charger les commentaires au montage du composant
+  useEffect(() => {
+    fetchFeedbacks();
+  }, []);
+
   return (
     <div style={containerStyle}>
       {/* Section 1 : Présentation du Restaurant */}
@@ -90,6 +159,63 @@ const LearnMore = () => {
         <p style={{ ...descriptionStyle, fontStyle: 'italic' }}>
           "Un service exceptionnel et une cuisine délicieuse. Nous reviendrons certainement !"
         </p>
+
+        {/* Commentaire statique */}
+        <div style={feedbackCardStyle}>
+          <p style={commentStyle}>{staticFeedback.comment}</p>
+          <div style={ratingStyle}>
+            {Array.from({ length: staticFeedback.rating }, (_, i) => (
+              <span key={i} style={starStyle}>
+                ★
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Liste des commentaires ajoutés */}
+        {feedbacks.map((feedback) => (
+          <div key={feedback.id} style={feedbackCardStyle}>
+            <p style={commentStyle}>{feedback.comment}</p>
+            <div style={ratingStyle}>
+              {Array.from({ length: feedback.rating }, (_, i) => (
+                <span key={i} style={starStyle}>
+                  ★
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {/* Formulaire de feedback */}
+        <form onSubmit={handleSubmit} style={feedbackFormStyle}>
+          <div style={starRatingStyle}>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <span
+                key={star}
+                style={{
+                  cursor: 'pointer',
+                  color: star <= rating ? '#ffc107' : '#e4e5e9',
+                  fontSize: '2rem',
+                }}
+                onClick={() => setRating(star)}
+              >
+                ★
+              </span>
+            ))}
+          </div>
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Écrivez votre commentaire ici..."
+            style={commentBoxStyle}
+          />
+          <button type="submit" style={submitButtonStyle}>
+            Publier
+          </button>
+        </form>
+
+        {/* Message de succès ou d'erreur */}
+        {message && <p style={messageStyle}>{message}</p>}
       </div>
 
       {/* Section 7 : Contact */}
@@ -140,11 +266,46 @@ const descriptionStyle = {
 
 const imageStyle = {
   width: '100%',
-  maxWidth: '600px', // Largeur maximale par défaut
+  maxWidth: '600px',
   height: 'auto',
   borderRadius: '10px',
   marginBottom: '20px',
   objectFit: 'cover',
+};
+
+const feedbackFormStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '20px',
+  marginTop: '20px',
+};
+
+const starRatingStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+  gap: '10px',
+};
+
+const commentBoxStyle = {
+  width: '100%',
+  maxWidth: '500px',
+  height: '100px',
+  padding: '10px',
+  borderRadius: '10px',
+  border: '1px solid #ccc',
+  fontSize: '1rem',
+  fontFamily: 'Arial, sans-serif',
+};
+
+const submitButtonStyle = {
+  padding: '10px 20px',
+  backgroundColor: '#27ae60',
+  color: '#fff',
+  border: 'none',
+  borderRadius: '5px',
+  cursor: 'pointer',
+  fontSize: '1rem',
 };
 
 const listStyle = {
@@ -159,6 +320,37 @@ const listItemStyle = {
   marginBottom: '10px',
   paddingLeft: '20px',
   position: 'relative',
+};
+
+const feedbackCardStyle = {
+  backgroundColor: '#fff',
+  padding: '15px',
+  borderRadius: '10px',
+  marginBottom: '15px',
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  color: '#000',
+};
+
+const commentStyle = {
+  fontSize: '1rem',
+  lineHeight: '1.6',
+  marginBottom: '10px',
+};
+
+const ratingStyle = {
+  display: 'flex',
+  gap: '5px',
+};
+
+const starStyle = {
+  fontSize: '1.5rem',
+  color: '#ffc107',
+};
+
+const messageStyle = {
+  textAlign: 'center',
+  color: '#27ae60',
+  marginTop: '10px',
 };
 
 export default LearnMore;

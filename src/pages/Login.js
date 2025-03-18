@@ -197,7 +197,7 @@ const styles = {
   },
   loginContainer: {
     width: "320px",
-    background: "rgba(0, 119, 182, 0.7)", // Fond bleu légèrement transparent
+    background: "rgba(214, 213, 207, 0.7)", // Fond bleu légèrement transparent
     padding: "20px",
     borderRadius: "10px",
     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",

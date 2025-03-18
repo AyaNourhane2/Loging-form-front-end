@@ -6,14 +6,15 @@ import contactImage from '../asset/contact.jpg';
 import feedbackImage from '../asset/feedback.jpg';
 import experienceImage from '../asset/experience.jpg';
 import serviceDisponibleImage from '../asset/service-disponible.jpg';
+import './LearnMore.css'; // Importez le fichier CSS
 
 const LearnMore = () => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
-  const [feedbacks, setFeedbacks] = useState([]); // État pour stocker les commentaires
-  const [message, setMessage] = useState(''); // État pour afficher les messages
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [message, setMessage] = useState('');
+  const [isClicked, setIsClicked] = useState(null); // État pour suivre la carte cliquée
 
-  // Commentaire statique
   const staticFeedback = {
     id: 0,
     user_id: 1,
@@ -21,7 +22,6 @@ const LearnMore = () => {
     rating: 5,
   };
 
-  // Charger les commentaires depuis l'API
   const fetchFeedbacks = async () => {
     try {
       const response = await fetch('http://localhost:3000/api/feedbacks/get-feedbacks');
@@ -35,7 +35,6 @@ const LearnMore = () => {
     }
   };
 
-  // Ajouter un commentaire
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -51,7 +50,7 @@ const LearnMore = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          user_id: 1, // Remplacez par l'ID de l'utilisateur connecté
+          user_id: 1,
           comment,
           rating,
         }),
@@ -62,7 +61,7 @@ const LearnMore = () => {
         setMessage('Merci pour votre feedback !');
         setComment('');
         setRating(0);
-        fetchFeedbacks(); // Recharger les commentaires après l'ajout
+        fetchFeedbacks();
       } else {
         setMessage('Échec de l\'ajout du feedback.');
       }
@@ -72,285 +71,220 @@ const LearnMore = () => {
     }
   };
 
-  // Charger les commentaires au montage du composant
   useEffect(() => {
     fetchFeedbacks();
   }, []);
 
+  // Gestion du clic sur une carte
+  const handleCardClick = (index) => {
+    setIsClicked(index);
+    setTimeout(() => setIsClicked(null), 300); // Réinitialiser après l'animation
+  };
+
   return (
-    <div style={containerStyle}>
+    <div className="container">
       {/* Section 1 : Présentation du Restaurant */}
-      <div style={sectionStyle}>
-        <h2 style={titleStyle}>Présentation du Restaurant</h2>
-        <img
-          src={presentationImage}
-          alt="Ambiance du restaurant"
-          style={imageStyle}
-        />
-        <p style={descriptionStyle}>
-          Une expérience gastronomique où saveurs exquises et cadre élégant se rencontrent.
-        </p>
-      </div>
-
-      {/* Section 2 : Menu et Spécialités */}
-      <div style={{ ...sectionStyle, backgroundColor: '#f9f9f9' }}>
-        <h2 style={{ ...titleStyle, color: '#e74c3c' }}>Menu et Spécialités</h2>
-        <img
-          src={menuImage}
-          alt="Plat gastronomique"
-          style={{ ...imageStyle, maxWidth: '500px', border: '4px solid #e74c3c' }}
-        />
-        <p style={{ ...descriptionStyle, color: '#333' }}>
-          Découvrez notre sélection de mets raffinés, préparés avec des ingrédients de première qualité.
-        </p>
-      </div>
-
-      {/* Section 3 : Expérience Culinaire et Ambiance */}
-      <div style={{ ...sectionStyle, backgroundColor: '#ecf0f1' }}>
-        <h2 style={{ ...titleStyle, color: '#2980b9' }}>Expérience Culinaire et Ambiance</h2>
-        <img
-          src={experienceImage}
-          alt="Terrasse avec vue"
-          style={{ ...imageStyle, maxWidth: '400px', borderRadius: '20px' }}
-        />
-        <p style={{ ...descriptionStyle, fontStyle: 'italic' }}>
-          Un cadre chaleureux avec une vue imprenable pour sublimer chaque repas.
-        </p>
-      </div>
-
-      {/* Section 4 : Chef et Équipe */}
-      <div style={{ ...sectionStyle, backgroundColor: '#fff', padding: '30px' }}>
-        <h2 style={{ ...titleStyle, color: '#27ae60' }}>Chef et Équipe</h2>
-        <img
-          src={chefImage}
-          alt="Chef en cuisine"
-          style={{ ...imageStyle, maxWidth: '300px', width: '70%', margin: '0 auto' }}
-        />
-        <p style={{ ...descriptionStyle, fontWeight: 'bold' }}>
-          Notre chef étoilé met en avant un savoir-faire d’exception pour ravir vos papilles.
-        </p>
-      </div>
-
-      {/* Section 5 : Services Disponibles */}
-      <div style={{ ...sectionStyle, backgroundColor: '#f1c40f', color: '#fff' }}>
-        <h2 style={{ ...titleStyle, color: '#fff' }}>Services Disponibles</h2>
-        <img
-          src={serviceDisponibleImage}
-          alt="Services disponibles"
-          style={{ ...imageStyle, maxWidth: '500px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)' }}
-        />
-        <ul style={listStyle}>
-          <li style={listItemStyle}>Wi-Fi gratuit</li>
-          <li style={listItemStyle}>Service de chambre 24/7</li>
-          <li style={listItemStyle}>Spa et centre de bien-être</li>
-          <li style={listItemStyle}>Piscine extérieure</li>
-          <li style={listItemStyle}>Restaurant et bar</li>
-        </ul>
-      </div>
-
-      {/* Section 6 : Feedback */}
-      <div style={{ ...sectionStyle, backgroundColor: '#9b59b6', color: '#fff' }}>
-        <h2 style={{ ...titleStyle, color: '#fff' }}>Feedback</h2>
-        <img
-          src={feedbackImage}
-          alt="Feedback des clients"
-          style={{ ...imageStyle, maxWidth: '200px', borderRadius: '50%', width: '200px', height: '200px' }}
-        />
-        <p style={{ ...descriptionStyle, fontStyle: 'italic' }}>
-          "Un service exceptionnel et une cuisine délicieuse. Nous reviendrons certainement !"
-        </p>
-
-        {/* Commentaire statique */}
-        <div style={feedbackCardStyle}>
-          <p style={commentStyle}>{staticFeedback.comment}</p>
-          <div style={ratingStyle}>
-            {Array.from({ length: staticFeedback.rating }, (_, i) => (
-              <span key={i} style={starStyle}>
-                ★
-              </span>
-            ))}
+      <div className="grid-container">
+        <div
+          className={`card ${isClicked === 0 ? 'clicked' : ''}`}
+          onClick={() => handleCardClick(0)}
+        >
+          <div className="image-icon-container">
+            <img src={presentationImage} alt="Ambiance du restaurant" className="circle-image" />
+            <div className="icon-circle">
+              <i className="fas fa-utensils"></i> {/* Icône spécifique */}
+            </div>
+          </div>
+          <div className="card-content">
+            <h2 className="card-title">Présentation du Restaurant</h2>
+            <p className="card-description">
+              Une expérience gastronomique où saveurs exquises et cadre élégant se rencontrent.
+            </p>
           </div>
         </div>
 
-        {/* Liste des commentaires ajoutés */}
-        {feedbacks.map((feedback) => (
-          <div key={feedback.id} style={feedbackCardStyle}>
-            <p style={commentStyle}>{feedback.comment}</p>
-            <div style={ratingStyle}>
-              {Array.from({ length: feedback.rating }, (_, i) => (
-                <span key={i} style={starStyle}>
-                  ★
-                </span>
-              ))}
+        <div
+          className={`card ${isClicked === 1 ? 'clicked' : ''}`}
+          onClick={() => handleCardClick(1)}
+        >
+          <div className="image-icon-container">
+            <img src={menuImage} alt="Plat gastronomique" className="circle-image" />
+            <div className="icon-circle">
+              <i className="fas fa-book-open"></i> {/* Icône spécifique */}
             </div>
           </div>
-        ))}
-
-        {/* Formulaire de feedback */}
-        <form onSubmit={handleSubmit} style={feedbackFormStyle}>
-          <div style={starRatingStyle}>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <span
-                key={star}
-                style={{
-                  cursor: 'pointer',
-                  color: star <= rating ? '#ffc107' : '#e4e5e9',
-                  fontSize: '2rem',
-                }}
-                onClick={() => setRating(star)}
-              >
-                ★
-              </span>
-            ))}
+          <div className="card-content">
+            <h2 className="card-title">Menu et Spécialités</h2>
+            <p className="card-description">
+              Découvrez notre sélection de mets raffinés, préparés avec des ingrédients de première qualité.
+            </p>
           </div>
-          <textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="Écrivez votre commentaire ici..."
-            style={commentBoxStyle}
-          />
-          <button type="submit" style={submitButtonStyle}>
-            Publier
-          </button>
-        </form>
-
-        {/* Message de succès ou d'erreur */}
-        {message && <p style={messageStyle}>{message}</p>}
+        </div>
       </div>
 
-      {/* Section 7 : Contact */}
-      <div style={{ ...sectionStyle, backgroundColor: '#34495e', color: '#fff' }}>
-        <h2 style={{ ...titleStyle, color: '#fff' }}>Contact</h2>
-        <img
-          src={contactImage}
-          alt="Contactez-nous"
-          style={{ ...imageStyle, maxWidth: '400px', border: '2px solid #fff' }}
-        />
-        <p style={descriptionStyle}>
-          Email: contact@royalstay.com<br />
-          Téléphone: +1 234 567 890<br />
-          Adresse: 123 Rue de Luxe, Paris, France
-        </p>
+      {/* Section 2 : Expérience Culinaire et Ambiance */}
+      <div className="grid-container">
+        <div
+          className={`card ${isClicked === 2 ? 'clicked' : ''}`}
+          onClick={() => handleCardClick(2)}
+        >
+          <div className="image-icon-container">
+            <img src={experienceImage} alt="Terrasse avec vue" className="circle-image" />
+            <div className="icon-circle">
+              <i className="fas fa-eye"></i> {/* Icône spécifique */}
+            </div>
+          </div>
+          <div className="card-content">
+            <h2 className="card-title">Expérience Culinaire et Ambiance</h2>
+            <p className="card-description">
+              Un cadre chaleureux avec une vue imprenable pour sublimer chaque repas.
+            </p>
+          </div>
+        </div>
+
+        <div
+          className={`card ${isClicked === 3 ? 'clicked' : ''}`}
+          onClick={() => handleCardClick(3)}
+        >
+          <div className="image-icon-container">
+            <img src={chefImage} alt="Chef en cuisine" className="circle-image" />
+            <div className="icon-circle">
+              <i className="fas fa-user-chef"></i> {/* Icône spécifique */}
+            </div>
+          </div>
+          <div className="card-content">
+            <h2 className="card-title">Chef et Équipe</h2>
+            <p className="card-description">
+              Notre chef étoilé met en avant un savoir-faire d’exception pour ravir vos papilles.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Section 3 : Services Disponibles */}
+      <div className="grid-container">
+        <div
+          className={`card ${isClicked === 4 ? 'clicked' : ''}`}
+          onClick={() => handleCardClick(4)}
+        >
+          <div className="image-icon-container">
+            <img src={serviceDisponibleImage} alt="Services disponibles" className="circle-image" />
+            <div className="icon-circle">
+              <i className="fas fa-concierge-bell"></i> {/* Icône spécifique */}
+            </div>
+          </div>
+          <div className="card-content">
+            <h2 className="card-title">Services Disponibles</h2>
+            <ul className="list">
+              <li className="list-item">Wi-Fi gratuit</li>
+              <li className="list-item">Service de chambre 24/7</li>
+              <li className="list-item">Spa et centre de bien-être</li>
+              <li className="list-item">Piscine extérieure</li>
+              <li className="list-item">Restaurant et bar</li>
+            </ul>
+          </div>
+        </div>
+
+        <div
+          className={`card ${isClicked === 5 ? 'clicked' : ''}`}
+          onClick={() => handleCardClick(5)}
+        >
+          <div className="image-icon-container">
+            <img src={feedbackImage} alt="Feedback des clients" className="circle-image" />
+            <div className="icon-circle">
+              <i className="fas fa-comments"></i> {/* Icône spécifique */}
+            </div>
+          </div>
+          <div className="card-content">
+            <h2 className="card-title">Feedback</h2>
+            <p className="card-description">
+              "Un service exceptionnel et une cuisine délicieuse. Nous reviendrons certainement !"
+            </p>
+            <div className="feedback-card">
+              <p className="comment">{staticFeedback.comment}</p>
+              <div className="rating">
+                {Array.from({ length: staticFeedback.rating }, (_, i) => (
+                  <span key={i} className="star">
+                    ★
+                  </span>
+                ))}
+              </div>
+            </div>
+            {feedbacks.map((feedback) => (
+              <div key={feedback.id} className="feedback-card">
+                <p className="comment">{feedback.comment}</p>
+                <div className="rating">
+                  {Array.from({ length: feedback.rating }, (_, i) => (
+                    <span key={i} className="star">
+                      ★
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <form onSubmit={handleSubmit} className="feedback-form">
+              <div className="star-rating">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    style={{
+                      cursor: 'pointer',
+                      color: star <= rating ? '#ffc107' : '#e4e5e9',
+                      fontSize: '2rem',
+                    }}
+                    onClick={() => setRating(star)}
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Écrivez votre commentaire ici..."
+                className="comment-box"
+              />
+              <button type="submit" className="submit-button">
+                Publier
+              </button>
+            </form>
+            {message && <p className="message">{message}</p>}
+          </div>
+        </div>
+      </div>
+
+      {/* Section 4 : Contact (centrée) */}
+      <div className="grid-container center">
+        <div className="card contact-card">
+          <div className="image-icon-container">
+            <img src={contactImage} alt="Contactez-nous" className="circle-image" />
+            <div className="icon-circle">
+              <i className="fas fa-envelope"></i> {/* Icône spécifique */}
+            </div>
+          </div>
+          <div className="card-content">
+            <h2 className="card-title">Contact</h2>
+            <p className="card-description">
+              Email: contact@royalstay.com<br />
+              Téléphone: +1 234 567 890<br />
+              Adresse: 123 Rue de Luxe, Paris, France
+            </p>
+            <div className="social-icons">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                <i className="fab fa-facebook"></i>
+              </a>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                <i className="fab fa-twitter"></i>
+              </a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                <i className="fab fa-instagram"></i>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
-};
-
-// Styles de base
-const containerStyle = {
-  padding: '20px',
-  fontFamily: 'Arial, sans-serif',
-};
-
-const sectionStyle = {
-  padding: '40px',
-  marginBottom: '30px',
-  borderRadius: '10px',
-  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-  textAlign: 'center',
-};
-
-const titleStyle = {
-  fontSize: '2rem',
-  marginBottom: '20px',
-  textTransform: 'uppercase',
-  letterSpacing: '2px',
-  fontWeight: 'bold',
-};
-
-const descriptionStyle = {
-  fontSize: '1.2rem',
-  lineHeight: '1.6',
-  marginBottom: '20px',
-};
-
-const imageStyle = {
-  width: '100%',
-  maxWidth: '600px',
-  height: 'auto',
-  borderRadius: '10px',
-  marginBottom: '20px',
-  objectFit: 'cover',
-};
-
-const feedbackFormStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  gap: '20px',
-  marginTop: '20px',
-};
-
-const starRatingStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  gap: '10px',
-};
-
-const commentBoxStyle = {
-  width: '100%',
-  maxWidth: '500px',
-  height: '100px',
-  padding: '10px',
-  borderRadius: '10px',
-  border: '1px solid #ccc',
-  fontSize: '1rem',
-  fontFamily: 'Arial, sans-serif',
-};
-
-const submitButtonStyle = {
-  padding: '10px 20px',
-  backgroundColor: '#27ae60',
-  color: '#fff',
-  border: 'none',
-  borderRadius: '5px',
-  cursor: 'pointer',
-  fontSize: '1rem',
-};
-
-const listStyle = {
-  listStyleType: 'none',
-  padding: '0',
-  textAlign: 'left',
-  display: 'inline-block',
-};
-
-const listItemStyle = {
-  fontSize: '1.2rem',
-  marginBottom: '10px',
-  paddingLeft: '20px',
-  position: 'relative',
-};
-
-const feedbackCardStyle = {
-  backgroundColor: '#fff',
-  padding: '15px',
-  borderRadius: '10px',
-  marginBottom: '15px',
-  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-  color: '#000',
-};
-
-const commentStyle = {
-  fontSize: '1rem',
-  lineHeight: '1.6',
-  marginBottom: '10px',
-};
-
-const ratingStyle = {
-  display: 'flex',
-  gap: '5px',
-};
-
-const starStyle = {
-  fontSize: '1.5rem',
-  color: '#ffc107',
-};
-
-const messageStyle = {
-  textAlign: 'center',
-  color: '#27ae60',
-  marginTop: '10px',
 };
 
 export default LearnMore;

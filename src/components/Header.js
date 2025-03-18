@@ -1,92 +1,147 @@
-import React, { useEffect, useState } from 'react'; // Import des hooks React
-import { Link, useLocation, useNavigate } from 'react-router-dom'; // Import des composants de routage
-import '../App.css'; // Import des styles CSS
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import './Header.css'; // Assurez-vous d'avoir ce fichier CSS pour le style
 
 const Header = () => {
-  // Hook pour obtenir l'emplacement actuel de la route
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userData, setUserData] = useState(null); // Suppression des variables inutilisées
   const location = useLocation();
-  // État pour stocker les données de l'utilisateur
-  const [userData, setUserData] = useState(null);
-  // Hook pour naviguer programmatiquement
   const navigate = useNavigate();
 
-  // Effet qui s'exécute lorsque l'emplacement change
+  // Récupérer les données de l'utilisateur lorsque l'emplacement change
   useEffect(() => {
-    // Délai pour s'assurer que les données sont disponibles
     setTimeout(() => {
-      getData(); // Appel de la fonction pour récupérer les données de l'utilisateur
+      getData();
     }, 200);
-  }, [location]); // Déclencheur : changement de l'emplacement
+  }, [location]);
 
   // Fonction pour récupérer les données de l'utilisateur depuis le sessionStorage
   const getData = async () => {
-    const data = await JSON.parse(sessionStorage.getItem('userData')); // Récupération des données
+    const data = await JSON.parse(sessionStorage.getItem('userData'));
     if (data && data.isLoggedIn) {
-      setUserData(data.userData); // Mise à jour de l'état avec les données de l'utilisateur
+      setUserData(data.userData);
     }
   };
 
   // Fonction pour déconnecter l'utilisateur
   const logout = () => {
-    sessionStorage.clear(); // Suppression des données du sessionStorage
-    setUserData(''); // Réinitialisation des données de l'utilisateur
-    navigate('/'); // Redirection vers la page d'accueil
+    sessionStorage.clear();
+    setUserData(null);
+    navigate('/');
+  };
+
+  // Fonction pour changer la couleur de fond des liens au survol
+  const handleLinkMouseEnter = (event) => {
+    event.target.style.backgroundColor = '#8a2be2'; // Changement de couleur au survol
+  };
+
+  // Fonction pour réinitialiser la couleur de fond des liens
+  const handleLinkMouseLeave = (event) => {
+    event.target.style.backgroundColor = 'transparent'; // Retour à la couleur d'origine
+  };
+
+  // Fonction pour changer la couleur de fond des liens au clic
+  const handleLinkClick = (event) => {
+    event.target.style.backgroundColor = '#6a5acd'; // Changement de couleur au clic
   };
 
   return (
-    <nav className="navbar">
-      {/* Logo de l'application */}
-      <div className="navbar-logo">
-        <i className="fas fa-briefcase logo-icon"></i> {/* Icône du logo */}
-        <span className="logo-text">RoyelStay</span> {/* Texte du logo */}
-      </div>
+    <header className="header">
+      <div className="header-container">
+        {/* Logo */}
+        <div className="logo">
+          <Link to="/">
+            <img src={require('../asset/Hotel logo.webp')} alt="Hotel Logo" />
+            <span>RoyelStay</span> {/* Nom de l'hôtel */}
+          </Link>
+        </div>
 
-      {/* Liens de navigation */}
-      <ul className="navbar-links">
-        {/* Lien vers la page d'accueil */}
-        <li>
-          <Link to="/" className={location.pathname === '/' ? 'active' : ''}>Home</Link>
-        </li>
-
-        {/* Lien vers la page des emplois */}
-        <li>
-          <Link to="/jobs" className={location.pathname === '/jobs' ? 'active' : ''}>Jobs</Link>
-        </li>
-
-        {/* Affichage conditionnel en fonction de la connexion de l'utilisateur */}
-        {userData ? (
-          // Si l'utilisateur est connecté
-          <>
-            {/* Lien vers le profil de l'utilisateur */}
-            <li className="navbar-profile">
-              <Link to="/homeScreen" className={location.pathname === '/homeScreen' ? 'active' : ''}>
-                <img src={require('../img1.png')} alt="Profile" className="profile-photo-circle" /> {/* Photo de profil */}
-                <span className="username">{userData.name}</span> {/* Nom de l'utilisateur */}
+        {/* Menu de navigation */}
+        <nav className={`nav-menu ${isMobileMenuOpen ? 'active' : ''}`}>
+          <ul>
+            <li>
+              <Link
+                to="/"
+                className={location.pathname === '/' ? 'active' : ''}
+                onMouseEnter={handleLinkMouseEnter} // Événement de survol
+                onMouseLeave={handleLinkMouseLeave} // Événement de sortie du survol
+                onClick={handleLinkClick} // Événement de clic
+              >
+                Home
               </Link>
             </li>
+            <li>
+              <Link
+                to="/jobs"
+                className={location.pathname === '/jobs' ? 'active' : ''}
+                onMouseEnter={handleLinkMouseEnter}
+                onMouseLeave={handleLinkMouseLeave}
+                onClick={handleLinkClick}
+              >
+                Jobs
+              </Link>
+            </li>
+            {userData ? (
+              <>
+                <li className="navbar-profile">
+                  <Link
+                    to="/homeScreen"
+                    className={location.pathname === '/homeScreen' ? 'active' : ''}
+                    onMouseEnter={handleLinkMouseEnter}
+                    onMouseLeave={handleLinkMouseLeave}
+                    onClick={handleLinkClick}
+                  >
+                    <img src={require('../img1.png')} alt="Profile" className="profile-photo-circle" />
+                    <span className="username">{userData.name}</span>
+                  </Link>
+                </li>
+                <li>
+                  <i
+                    className="fas fa-sign-out-alt logo-icon"
+                    style={{ cursor: 'pointer' }}
+                    onClick={logout}
+                  ></i>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <Link
+                    to="/login"
+                    className={location.pathname === '/login' ? 'active' : ''}
+                    onMouseEnter={handleLinkMouseEnter}
+                    onMouseLeave={handleLinkMouseLeave}
+                    onClick={handleLinkClick}
+                  >
+                    Login
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/signup"
+                    className={location.pathname === '/signup' ? 'active' : ''}
+                    onMouseEnter={handleLinkMouseEnter}
+                    onMouseLeave={handleLinkMouseLeave}
+                    onClick={handleLinkClick}
+                  >
+                    Sign Up
+                  </Link>
+                </li>
+              </>
+            )}
+          </ul>
+        </nav>
 
-            {/* Bouton de déconnexion */}
-            <li>
-              <i className="fas fa-sign-out-alt logo-icon" style={{ cursor: 'pointer' }} onClick={logout}></i>
-            </li>
-          </>
-        ) : (
-          // Si l'utilisateur n'est pas connecté
-          <>
-            {/* Lien vers la page de connexion */}
-            <li>
-              <Link to="/login" className={location.pathname === '/login' ? 'active' : ''}>Login</Link>
-            </li>
-
-            {/* Lien vers la page d'inscription */}
-            <li>
-              <Link to="/signup" className={location.pathname === '/signup' ? 'active' : ''}>Sign Up</Link>
-            </li>
-          </>
-        )}
-      </ul>
-    </nav>
+        {/* Bouton de menu mobile */}
+        <div
+          className="mobile-menu-toggle"
+          onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          <i className={`fas ${isMobileMenuOpen ? 'fa-times' : 'fa-bars'}`}></i>
+        </div>
+      </div>
+    </header>
   );
 };
 
-export default Header; // Export du composant Header
+export default Header;

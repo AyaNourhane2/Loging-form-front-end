@@ -36,6 +36,10 @@ const SignUp = () => {
     if (!formValues.password) {
       errors.password = "Password is required";
     }
+    // Validation pour le rôle
+    if (!formValues.role) {
+      errors.role = "Role is required";
+    }
     return errors;
   };
 
@@ -49,7 +53,7 @@ const SignUp = () => {
         const response = await axios.post("http://localhost:3000/api/auth/register-user", formValues);
         if (response.data.success) {
           toast.success(response.data.message || "Registration successful!");
-          setFormValues({ username: "", email: "", mobile: "", password: "" });
+          setFormValues({ username: "", email: "", mobile: "", password: "", role: "" }); // Réinitialiser le formulaire
           setFormErrors({});
         } else {
           toast.error(response.data.message || "Registration failed!");
@@ -91,6 +95,25 @@ const SignUp = () => {
               {formErrors[field] && <span className="error-message">{formErrors[field]}</span>}
             </div>
           ))}
+
+          {/* Champ pour le rôle */}
+          <div className="form-group">
+            <label style={styles.label}>Role</label>
+            <select
+              name="role"
+              value={formValues.role}
+              onChange={handleInputChange}
+              style={focusedField === "role" ? { ...styles.inputField, ...styles.inputFieldFocus } : styles.inputField}
+              onFocus={() => setFocusedField("role")}
+              onBlur={() => setFocusedField(null)}
+            >
+              <option value="">Select a role</option>
+              <option value="admin">Admin</option>
+              <option value="employer">Employer</option>
+            </select>
+            {formErrors.role && <span className="error-message">{formErrors.role}</span>}
+          </div>
+
           <button type="submit" style={styles.submitButton}>Sign Up</button>
         </form>
         <p>

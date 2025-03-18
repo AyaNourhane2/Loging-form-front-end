@@ -15,6 +15,12 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 // Importing the PlusInformation page
 const PlusInformation = lazy(() => import("./pages/PlusInformation"));
 
+// Importing the EmployeeInfo page
+const EmployeeInfo = lazy(() => import("./pages/EmployeeInfo"));
+
+// Importing the RoleDetails page (si nécessaire)
+const RoleDetails = lazy(() => import("./pages/RoleDetails"));
+
 const App = () => {
   return (
     <Router>
@@ -25,8 +31,10 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/homeScreen" element={<UserHomeScreen />} />
-          <Route path="/plus-information" element={<PlusInformation />} /> {/* Adding the new route */}
-          <Route path="*" element={<NotFound />} />
+          <Route path="/plus-information" element={<PlusInformation />} /> {/* Route existante */}
+          <Route path="/employee-info" element={<EmployeeInfo />} /> {/* Nouvelle route pour EmployeeInfo */}
+          <Route path="/role/:role" element={<RoleDetails />} /> {/* Nouvelle route pour RoleDetails (si nécessaire) */}
+          <Route path="*" element={<NotFound />} /> {/* Route pour la page 404 */}
         </Routes>
       </Suspense>
       <ToastContainer 

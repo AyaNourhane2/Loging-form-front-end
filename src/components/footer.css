@@ -1,0 +1,165 @@
+.footer {
+    background: #333;
+    color: white;
+    padding: 20px 0;
+}
+
+.footer-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.footer-section {
+    flex: 1 1 200px;
+    margin: 10px;
+}
+
+.footer-section h4 {
+    border-bottom: 1px solid white;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.footer-section a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.footer-section a:hover {
+    text-decoration: underline;
+}
+
+.footer-section form {
+    display: flex;
+    margin-top: 10px;
+}
+
+.footer-section input {
+    flex: 1;
+    padding: 5px;
+    margin-right: 10px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background: #444;
+    color: white;
+}
+
+.footer-section button {
+    padding: 5px 10px;
+    background: #555;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.footer-section button:hover {
+    background: #666;
+}
+
+.footer-section select {
+    margin: 5px 0;
+    padding: 5px;
+    background: #444;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 5px;
+}
+
+.footer-section iframe {
+    width: 100%;
+    height: 150px;
+    border: 0;
+    margin-top: 10px;
+}
+
+/* Styles pour la section des awards */
+.footer-section.awards {
+    text-align: left;
+}
+
+.footer-section.awards .award-item {
+    display: flex;
+    align-items: center; /* Aligner verticalement les logos et les noms */
+    margin: 10px 0; /* Espacement entre les éléments */
+}
+
+.footer-section.awards img {
+    width: 50px; /* Largeur des logos */
+    height: auto; /* Hauteur automatique pour conserver les proportions */
+    margin-right: 10px; /* Espacement entre le logo et le texte */
+    transition: transform 0.3s ease; /* Animation au survol */
+}
+
+.footer-section.awards img:hover {
+    transform: scale(1.1); /* Effet de zoom au survol */
+}
+
+.footer-section.awards span {
+    font-size: 16px; /* Taille du texte */
+    color: white; /* Couleur du texte */
+    line-height: 1; /* Assure que le texte est aligné avec le logo */
+}
+
+/* Styles pour les médias sociaux */
+.social-media {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: nowrap;
+}
+
+.social-media a {
+    color: white;
+    margin: 0 10px;
+    font-size: 24px;
+    transition: color 0.3s;
+}
+
+.social-media a:hover {
+    color: #ddd;
+}
+
+/* Section de copyright */
+.footer-section.copyright {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #aaa;
+}
+
+.footer-section.copyright p {
+    margin: 0;
+}
+
+/* Styles responsives */
+@media (max-width: 768px) {
+    .footer-section {
+        flex: 1 1 100%;
+        text-align: center;
+    }
+
+    .footer-section.awards img {
+        width: 40px; /* Réduire la taille des logos sur les petits écrans */
+    }
+
+    .footer-section.awards span {
+        font-size: 14px; /* Réduire la taille du texte sur les petits écrans */
+    }
+
+    .social-media {
+        justify-content: space-around;
+    }
+
+    .social-media a {
+        margin: 5px;
+    }
+}
